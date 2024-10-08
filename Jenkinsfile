@@ -1,5 +1,8 @@
-// https://velog.io/@revelation/Jenkins-pipeline-%EC%82%AC%EC%9A%A9%ED%95%B4%EB%B3%B4%EA%B8%B0
 pipeline {
+    environment {
+        repository = "kimdohee58/biday-jenkins"
+        DOCKERHUB_CREDENTIALS = credentials('dockerhub')
+    }
     agent any
 
     stages {
@@ -26,6 +29,67 @@ pipeline {
                 }
             }
         }
+
+        stage('Building Docker images') {
+            steps {
+                script {
+                    // 서버 이미지 빌드
+                    dir('biday-msa-jenkins/backend/server') {
+                        def serverDirs = findFiles(glob: '**/Dockerfile')
+                        for (file in serverDirs) {
+                            def imageName = file.parent.replace('\\', '/').split('/').last()  // 서브디렉토리 이름 추출
+                            docker.build("${repository}/server/${imageName}:${BUILD_NUMBER}", "-f ${file} ${file.parent}")
+                        }
+                    }
+
+                    // 서비스 이미지 빌드
+                    dir('biday-msa-jenkins/backend/service') {
+                        def serviceDirs = findFiles(glob: '**/Dockerfile')
+                        for (file in serviceDirs) {
+                            def imageName = file.parent.replace('\\', '/').split('/').last()  // 서브디렉토리 이름 추출
+                            docker.build("${repository}/service/${imageName}:${BUILD_NUMBER}", "-f ${file} ${file.parent}")
+                        }
+                    }
+                }
+            }
+        }
+
+        stage('Login') {
+            steps {
+                bat "echo %DOCKERHUB_CREDENTIALS_PSW% | docker login -u %DOCKERHUB_CREDENTIALS_USR% --password-stdin"
+            }
+        }
+
+        stage('Deploy our images') {
+            steps {
+                script {
+                    // 서버 이미지 푸시
+                    dir('biday-msa-jenkins/backend/server') {
+                        def serverDirs = findFiles(glob: '**/Dockerfile')
+                        for (file in serverDirs) {
+                            def imageName = file.parent.replace('\\', '/').split('/').last()
+                            bat "docker push ${repository}/server/${imageName}:${BUILD_NUMBER}"
+                        }
+                    }
+
+                    // 서비스 이미지 푸시
+                    dir('biday-msa-jenkins/backend/service') {
+                        def serviceDirs = findFiles(glob: '**/Dockerfile')
+                        for (file in serviceDirs) {
+                            def imageName = file.parent.replace('\\', '/').split('/').last()
+                            bat "docker push ${repository}/service/${imageName}:${BUILD_NUMBER}"
+                        }
+                    }
+                }
+            }
+        }
+
+        // stage('Cleaning up') {
+        //     steps {
+        //         bat "docker rmi ${repository}/server:${BUILD_NUMBER}"
+        //         bat "docker rmi ${repository}/service:${BUILD_NUMBER}"
+        //     }
+        // }
     }
 
     post {
@@ -34,9 +98,6 @@ pipeline {
         }
     }
 }
-
-
-
 
 
 
