@@ -44,19 +44,19 @@ pipeline {
                 script {
                     // 서버 이미지 빌드
                     dir('biday-msa-jenkins/backend/server') {
-                        def serverDirs = new File("${env.WORKSPACE}/biday-msa-jenkins/backend/server").listFiles().findAll { it.name == 'Dockerfile' }
+                        def serverDirs = findFiles(glob: '**/Dockerfile')
                         for (file in serverDirs) {
-                            def imageName = file.parentFile.name  // 서브디렉토리 이름 추출
-                            docker.build("${repository}/server/${imageName}:${BUILD_NUMBER}", "-f ${file} ${file.parent}")
+                            def imageName = file.parent.replace('\\', '/').split('/').last()  // 서브디렉토리 이름 추출
+                            docker.build("${repository}/server/${imageName}:${BUILD_NUMBER}", "-f ${file.path} ${file.parent}")
                         }
                     }
 
                     // 서비스 이미지 빌드
                     dir('biday-msa-jenkins/backend/service') {
-                        def serviceDirs = new File("${env.WORKSPACE}/biday-msa-jenkins/backend/service").listFiles().findAll { it.name == 'Dockerfile' }
+                        def serviceDirs = findFiles(glob: '**/Dockerfile')
                         for (file in serviceDirs) {
-                            def imageName = file.parentFile.name  // 서브디렉토리 이름 추출
-                            docker.build("${repository}/service/${imageName}:${BUILD_NUMBER}", "-f ${file} ${file.parent}")
+                            def imageName = file.parent.replace('\\', '/').split('/').last()  // 서브디렉토리 이름 추출
+                            docker.build("${repository}/service/${imageName}:${BUILD_NUMBER}", "-f ${file.path} ${file.parent}")
                         }
                     }
                 }
