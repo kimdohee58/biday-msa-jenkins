@@ -16,18 +16,48 @@
 // }
 
 // https://velog.io/@revelation/Jenkins-pipeline-%EC%82%AC%EC%9A%A9%ED%95%B4%EB%B3%B4%EA%B8%B0
-node {
-    stage('git fetch') {
-        git 'https://github.com/kimdohee58/biday-msa-jenkins.git'
+pipeline {
+    agent any
+
+    stages {
+        stage('git pull') {
+            steps {
+                script {
+                    dir('biday-msa-jenkins') {
+                        if (!fileExists('.git')) {
+                            sh 'git clone https://github.com/kimdohee58/biday-msa-jenkins.git .'
+                        } else {
+                            sh 'git pull'
+                        }
+                    }
+                }
+            }
+        }
+
+        stage('Test') {
+            steps {
+                echo 'Testing....'
+            }
+        }
+
+        // stage('execute sh') {
+        //     steps {
+        //         sh "chmod 774 ./project.sh"
+        //         sh "./project.sh"
+        //     }
+        // }
     }
-    stage('Test') {
-        echo 'Testing....'
+
+    triggers {
+        // Polling 설정했을 경우 (예: 5분마다 체크)
+        // cron('H/5 * * * *')
+
+        // GitHub Webhook 트리거 설정했을 경우 (웹후크가 설정되어 있을 때)
+        githubPush()
     }
-//     stage('execute sh') {
-// 		sh "chmod 774 ./project.sh"
-//         sh "./project.sh"
-//     }
 }
+
+
 
 // https://velog.io/@dohyunkim12/Jenkins-Syntax-Scripted-vs-Declarative
 /*
