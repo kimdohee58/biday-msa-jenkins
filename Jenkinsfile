@@ -8,9 +8,9 @@ pipeline {
                 script {
                     dir('biday-msa-jenkins') {
                         if (!fileExists('.git')) {
-                            sh 'git clone https://github.com/kimdohee58/biday-msa-jenkins.git .'
+                            bat 'git clone https://github.com/kimdohee58/biday-msa-jenkins.git .'
                         } else {
-                            sh 'git pull origin master'
+                            bat 'git pull origin master'
                         }
                     }
                 }
@@ -22,9 +22,9 @@ pipeline {
                 script {
                     dir('biday-msa-jenkins/backend') {
                         // 스크립트에 실행 권한 부여
-                        sh 'chmod +x buildModule.sh'
-                        // Git Bash에서 스크립트 실행
-                        sh 'bash ./buildModule.sh'
+                        bat 'chmod +x buildModule.sh'
+                        // PowerShell에서 스크립트 실행
+                        bat 'Start-Process bash -ArgumentList "-c ./buildModule.sh" -NoNewWindow -Wait'
                     }
                 }
             }
@@ -37,6 +37,7 @@ pipeline {
         }
     }
 }
+
 
 
 
