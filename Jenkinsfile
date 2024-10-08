@@ -21,7 +21,7 @@ pipeline {
             steps {
                 script {
                     dir('biday-msa-jenkins/backend') {
-                        bat 'C:\\Program Files\\Git\\bin\\bash.exe ./buildModule.sh'
+                        bat '"C:\\Program Files\\Git\\bin\\bash.exe" ./buildModule.sh'
                     }
                 }
             }
