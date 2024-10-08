@@ -31,13 +31,13 @@ pipeline {
             }
         }
 
-        stage('Login') {
-            steps {
-                withCredentials([usernamePassword(credentialsId: registryCredential, usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD')]) {
-                    bat "echo %DOCKERHUB_PASSWORD% | docker login -u %DOCKERHUB_USERNAME% --password-stdin"
-                }
-            }
-        }
+//         stage('Login') {
+//             steps {
+//                 withCredentials([usernamePassword(credentialsId: registryCredential, usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD')]) {
+//                     bat "echo %DOCKERHUB_PASSWORD% | docker login -u %DOCKERHUB_USERNAME% --password-stdin"
+//                 }
+//             }
+//         }
 
         stage('Building Docker images') {
             steps {
