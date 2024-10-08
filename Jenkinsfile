@@ -28,7 +28,7 @@ pipeline {
             steps {
                 script {
                     dir('biday-msa-jenkins/backend') {
-                        sh './buildModule.sh'
+                        sh 'bash ./buildModule.sh'
                     }
                 }
             }
