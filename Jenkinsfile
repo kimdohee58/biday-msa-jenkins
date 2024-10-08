@@ -21,15 +21,15 @@ pipeline {
             }
         }
 
-        stage('Start buildModule') {
-            steps {
-                script {
-                    dir('biday-msa-jenkins/backend') {
-                        bat '"C:\\Program Files\\Git\\bin\\bash.exe" ./buildModule.sh'
-                    }
-                }
-            }
-        }
+//         stage('Start buildModule') {
+//             steps {
+//                 script {
+//                     dir('biday-msa-jenkins/backend') {
+//                         bat '"C:\\Program Files\\Git\\bin\\bash.exe" ./buildModule.sh'
+//                     }
+//                 }
+//             }
+//         }
 
         stage('Login') {
             steps {
@@ -39,7 +39,7 @@ pipeline {
             }
         }
 
-        /* stage('Building Docker images') {
+        stage('Building Docker images') {
             steps {
                 script {
                     // 서버 이미지 빌드
@@ -85,7 +85,7 @@ pipeline {
                     }
                 }
             }
-        } */
+        }
     }
 
     post {
