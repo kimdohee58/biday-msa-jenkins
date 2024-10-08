@@ -1,6 +1,6 @@
 pipeline {
     environment {
-        // repository = "kimdohee58/biday-jenkins" // 주석 처리된 부분
+        repository = "kimdohee58/biday-jenkins" // 주석 처리된 부분
         imagename = "kimdohee58/biday-jenkins" // 현재 도커허브의 사용자 id/repo 이름
         registryCredential = 'dockerhub' // Jenkins에서 만든 credentialsId
         dockerImage = ''
@@ -34,7 +34,7 @@ pipeline {
 
         stage('Login') {
             steps {
-                withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials-id', usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD')]) {
+                withCredentials([usernamePassword(credentialsId: registryCredential, usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD')]) {
                     bat "echo %DOCKERHUB_PASSWORD% | docker login -u %DOCKERHUB_USERNAME% --password-stdin"
                 }
             }
