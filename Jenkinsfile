@@ -21,10 +21,8 @@ pipeline {
             steps {
                 script {
                     dir('biday-msa-jenkins/backend') {
-                        // 스크립트에 실행 권한 부여
-                        bat 'chmod +x buildModule.sh'
                         // PowerShell에서 스크립트 실행
-                        bat 'Start-Process bash -ArgumentList "-c ./buildModule.sh" -NoNewWindow -Wait'
+                        bat 'bash ./buildModule.sh'
                     }
                 }
             }
@@ -37,6 +35,7 @@ pipeline {
         }
     }
 }
+
 
 
 
