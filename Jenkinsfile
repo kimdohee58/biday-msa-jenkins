@@ -1,7 +1,6 @@
 pipeline {
     environment {
-        repository = "kimdohee58/biday-jenkins" // 주석 처리된 부분
-        imagename = "kimdohee58/biday-jenkins" // 현재 도커허브의 사용자 id/repo 이름
+        repository = "kimdohee58/biday-jenkins" // 도커 허브의 사용자 id/repo 이름
         registryCredential = 'dockerhub' // Jenkins에서 만든 credentialsId
         dockerImage = ''
     }
@@ -40,8 +39,6 @@ pipeline {
             }
         }
 
-        // 주석 처리된 Docker 이미지 빌드 및 푸시 단계
-        /*
         stage('Building Docker images') {
             steps {
                 script {
@@ -49,7 +46,7 @@ pipeline {
                     dir('biday-msa-jenkins/backend/server') {
                         def serverDirs = new File("${env.WORKSPACE}/biday-msa-jenkins/backend/server").listFiles().findAll { it.name == 'Dockerfile' }
                         for (file in serverDirs) {
-                            def imageName = file.parent.replace('\\', '/').split('/').last()  // 서브디렉토리 이름 추출
+                            def imageName = file.parentFile.name  // 서브디렉토리 이름 추출
                             docker.build("${repository}/server/${imageName}:${BUILD_NUMBER}", "-f ${file} ${file.parent}")
                         }
                     }
@@ -58,7 +55,7 @@ pipeline {
                     dir('biday-msa-jenkins/backend/service') {
                         def serviceDirs = new File("${env.WORKSPACE}/biday-msa-jenkins/backend/service").listFiles().findAll { it.name == 'Dockerfile' }
                         for (file in serviceDirs) {
-                            def imageName = file.parent.replace('\\', '/').split('/').last()  // 서브디렉토리 이름 추출
+                            def imageName = file.parentFile.name  // 서브디렉토리 이름 추출
                             docker.build("${repository}/service/${imageName}:${BUILD_NUMBER}", "-f ${file} ${file.parent}")
                         }
                     }
@@ -73,7 +70,7 @@ pipeline {
                     dir('biday-msa-jenkins/backend/server') {
                         def serverDirs = new File("${env.WORKSPACE}/biday-msa-jenkins/backend/server").listFiles().findAll { it.name == 'Dockerfile' }
                         for (file in serverDirs) {
-                            def imageName = file.parent.replace('\\', '/').split('/').last()
+                            def imageName = file.parentFile.name
                             bat "docker push ${repository}/server/${imageName}:${BUILD_NUMBER}"
                         }
                     }
@@ -82,14 +79,13 @@ pipeline {
                     dir('biday-msa-jenkins/backend/service') {
                         def serviceDirs = new File("${env.WORKSPACE}/biday-msa-jenkins/backend/service").listFiles().findAll { it.name == 'Dockerfile' }
                         for (file in serviceDirs) {
-                            def imageName = file.parent.replace('\\', '/').split('/').last()
+                            def imageName = file.parentFile.name
                             bat "docker push ${repository}/service/${imageName}:${BUILD_NUMBER}"
                         }
                     }
                 }
             }
         }
-        */
     }
 
     post {
