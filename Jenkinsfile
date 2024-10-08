@@ -10,7 +10,7 @@ pipeline {
                         if (!fileExists('.git')) {
                             sh 'git clone https://github.com/kimdohee58/biday-msa-jenkins.git .'
                         } else {
-                            sh 'git pull'
+                            sh 'git pull origin master'
                         }
                     }
                 }
