@@ -31,15 +31,15 @@ pipeline {
             }
         }
 
-//         stage('Login') {
-//             steps {
-//                 withCredentials([usernamePassword(credentialsId: registryCredential, usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD')]) {
-//                     bat "echo %DOCKERHUB_PASSWORD% | docker login -u %DOCKERHUB_USERNAME% --password-stdin"
-//                 }
-//             }
-//         }
+        stage('Login') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: registryCredential, usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD')]) {
+                    bat "echo docker login -u %DOCKERHUB_USERNAME% %DOCKERHUB_PASSWORD%"
+                }
+            }
+        }
 
-        stage('Building Docker images') {
+        /* stage('Building Docker images') {
             steps {
                 script {
                     // 서버 이미지 빌드
@@ -85,7 +85,7 @@ pipeline {
                     }
                 }
             }
-        }
+        } */
     }
 
     post {
