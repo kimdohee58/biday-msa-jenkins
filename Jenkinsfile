@@ -21,8 +21,7 @@ pipeline {
             steps {
                 script {
                     dir('biday-msa-jenkins/backend') {
-                        // PowerShell에서 스크립트 실행
-                        bat 'bash ./buildModule.sh'
+                        bat 'C:\\Program Files\\Git\\bin\\bash.exe ./buildModule.sh'
                     }
                 }
             }
