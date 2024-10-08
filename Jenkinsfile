@@ -35,19 +35,29 @@ pipeline {
                 script {
                     // 서버 이미지 빌드
                     dir('biday-msa-jenkins/backend/server') {
-                        def serverDirs = findFiles(glob: '**/Dockerfile')
+                        def serverDirs = []
+                        bat 'for /r %i in (Dockerfile) do @echo %i' > 'serverDockerfiles.txt'
+                        serverDirs = readFile('serverDockerfiles.txt').split('\n')
+
                         for (file in serverDirs) {
-                            def imageName = file.parent.replace('\\', '/').split('/').last()  // 서브디렉토리 이름 추출
-                            docker.build("${repository}/server/${imageName}:${BUILD_NUMBER}", "-f ${file} ${file.parent}")
+                            if (file) {
+                                def imageName = file.replace('\\', '/').split('/').last()  // 서브디렉토리 이름 추출
+                                docker.build("${repository}/server/${imageName}:${BUILD_NUMBER}", "-f ${file} ${file.parent}")
+                            }
                         }
                     }
 
                     // 서비스 이미지 빌드
                     dir('biday-msa-jenkins/backend/service') {
-                        def serviceDirs = findFiles(glob: '**/Dockerfile')
+                        def serviceDirs = []
+                        bat 'for /r %i in (Dockerfile) do @echo %i' > 'serviceDockerfiles.txt'
+                        serviceDirs = readFile('serviceDockerfiles.txt').split('\n')
+
                         for (file in serviceDirs) {
-                            def imageName = file.parent.replace('\\', '/').split('/').last()  // 서브디렉토리 이름 추출
-                            docker.build("${repository}/service/${imageName}:${BUILD_NUMBER}", "-f ${file} ${file.parent}")
+                            if (file) {
+                                def imageName = file.replace('\\', '/').split('/').last()  // 서브디렉토리 이름 추출
+                                docker.build("${repository}/service/${imageName}:${BUILD_NUMBER}", "-f ${file} ${file.parent}")
+                            }
                         }
                     }
                 }
@@ -65,19 +75,29 @@ pipeline {
                 script {
                     // 서버 이미지 푸시
                     dir('biday-msa-jenkins/backend/server') {
-                        def serverDirs = findFiles(glob: '**/Dockerfile')
+                        def serverDirs = []
+                        bat 'for /r %i in (Dockerfile) do @echo %i' > 'serverDockerfiles.txt'
+                        serverDirs = readFile('serverDockerfiles.txt').split('\n')
+
                         for (file in serverDirs) {
-                            def imageName = file.parent.replace('\\', '/').split('/').last()
-                            bat "docker push ${repository}/server/${imageName}:${BUILD_NUMBER}"
+                            if (file) {
+                                def imageName = file.replace('\\', '/').split('/').last()
+                                bat "docker push ${repository}/server/${imageName}:${BUILD_NUMBER}"
+                            }
                         }
                     }
 
                     // 서비스 이미지 푸시
                     dir('biday-msa-jenkins/backend/service') {
-                        def serviceDirs = findFiles(glob: '**/Dockerfile')
+                        def serviceDirs = []
+                        bat 'for /r %i in (Dockerfile) do @echo %i' > 'serviceDockerfiles.txt'
+                        serviceDirs = readFile('serviceDockerfiles.txt').split('\n')
+
                         for (file in serviceDirs) {
-                            def imageName = file.parent.replace('\\', '/').split('/').last()
-                            bat "docker push ${repository}/service/${imageName}:${BUILD_NUMBER}"
+                            if (file) {
+                                def imageName = file.replace('\\', '/').split('/').last()
+                                bat "docker push ${repository}/service/${imageName}:${BUILD_NUMBER}"
+                            }
                         }
                     }
                 }
@@ -98,102 +118,3 @@ pipeline {
         }
     }
 }
-
-
-
-
-
-
-// https://velog.io/@dohyunkim12/Jenkins-Syntax-Scripted-vs-Declarative
-/*
-node {
-    def version = "${params.majorVersion}.${params.minorVersion}.${params.hotfixVersion}"
-    def branch = "master"
-    def dockerImgRemote = "${params.dockerImageRepo}"
-    def dockerUser = "${params.dockerUser}"
-    def dockerPassword = "${params.dockerPassword}"
-    def publishUrl = "http://${params.publishHost}:${params.publishPort}${params.publishDir}"
-    def repoUser = "${params.repoUser}"
-    def repoPassword = "${params.repoPassword}"
-
-
-    switch(distributionType){
-        case 'integrated':
-            BuildJar(version, branch)
-            UploadJar(version, publishUrl, repoUser, repoPassword)
-            BuildImg(version)
-            UploadImg(version, dockerImgRemote, dockerUser, dockerPassword)
-            break
-        case 'build-jar':
-            BuildJar(version, branch)
-            break
-        case 'build-and-upload-jar':
-            BuildJar(version, branch)
-            UploadJar(version, publishUrl, repoUser, repoPassword)
-            break
-        case 'build-img':
-            BuildJar(version, branch)
-            BuildImg(version)
-            break
-        case 'build-and-upload-img':
-            BuildJar(version, branch)
-            BuildImg(version)
-            BuildImg(version)
-            UploadImg(version, dockerImgRemote, dockerUser, dockerPassword)
-            break
-        default:
-            break
-    }
-}
-
-void BuildJar(version, branch){
-    stage('Build Jar') {
-        echo 'Git fetching...'
-        sh 'git fetch --all'
-//        sh 'git reset --hard origin/master'
-        sh "git reset --hard origin/${branch}"
-//        sh "git pull origin ${branch}"
-
-        echo 'Getting Commit ID...'
-        commitId = sh(returnStdout: true, script: "git log | head -1 | cut -b 7-15")
-        commitId = commitId.substring(1)
-
-        echo 'Building...'
-        sh 'chmod +x ./gradlew'
-        sh "./gradlew clean build jenkins -PbuildVersion=${version} -PcommitId=${commitId}"
-    }
-}
-
-void UploadJar(version, publishUrl, repoUser, repoPassword) {
-    stage('Upload Jar') {
-        sh "./gradlew publish -PbuildVersion=${version} -PpublishUrl=${publishUrl} -PrepoUser=${repoUser} -PrepoPassword=${repoPassword}"
-    }
-}
-
-void BuildImg(version) {
-    stage('Build Docker img') {
-        echo 'Building img...'
-        sh "sudo docker build --tag super-app-server:${version} --build-arg version=${version} ."
-    }
-}
-
-void UploadImg(version, dockerImgRemote, dockerUser, dockerPassword) {
-    stage('Upload Docker img') {
-        //////////////////////////////////////// testing docker img (img run)
-        sh "sudo docker ps -a"
-//        sh 'sudo docker stop $(sudo docker ps -a -q)'
-//        sh 'sudo docker rm $(sudo docker ps -a -q)'
-        sh "sudo docker run --name super-app-server-test -d -p 8888:8888 super-app-server:${version}"
-        sh "sudo docker ps | grep super-app-server"
-        sh 'sudo docker stop $(sudo docker ps -a -q)'
-        sh 'sudo docker rm $(sudo docker ps -a -q)'
-        ////////////////////////////////////////
-
-        echo 'Uploading img...'
-        sh "sudo docker login -u ${dockerUser} -p ${dockerPassword}"
-        sh "sudo docker tag super-app-server:${version} ${dockerImgRemote}:${version}"
-        sh "sudo docker tag super-app-server:${version} ${dockerImgRemote}:latest"
-        sh "sudo docker push dohyunkim12/super-app-server:${version}"
-        sh "sudo docker push dohyunkim12/super-app-server:latest"
-    }
-} */
