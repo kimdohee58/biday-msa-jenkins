@@ -1,12 +1,13 @@
 // https://velog.io/@revelation/Jenkins-pipeline-%EC%82%AC%EC%9A%A9%ED%95%B4%EB%B3%B4%EA%B8%B0
 pipeline {
-    agent {
-        docker {
-            image 'maven:3.8.1-adoptopenjdk-11'
-            label 'my-defined-label'
-            args '-v /tmp:/tmp'
-        }
-    }
+    agent any
+//     agent {
+//         docker {
+//             image 'maven:3.8.1-adoptopenjdk-11'
+//             label 'my-defined-label'
+//             args '-v /tmp:/tmp'
+//         }
+//     }
 
     stages {
         stage('git pull') {
