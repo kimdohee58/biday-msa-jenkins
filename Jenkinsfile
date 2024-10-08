@@ -1,23 +1,12 @@
-// pipeline {
-//     agent any
-//     stages {
-//         stage('build') {
-//             steps {
-//             }
-//         }
-//         stage('test'){
-//             steps{
-//             }
-//         }
-//         stage('doker build'){
-//             steps{
-//             }
-//     }
-// }
-
 // https://velog.io/@revelation/Jenkins-pipeline-%EC%82%AC%EC%9A%A9%ED%95%B4%EB%B3%B4%EA%B8%B0
 pipeline {
-    agent any
+    agent {
+        docker {
+            image 'maven:3.8.1-adoptopenjdk-11'
+            label 'my-defined-label'
+            args '-v /tmp:/tmp'
+        }
+    }
 
     stages {
         stage('git pull') {
@@ -34,28 +23,25 @@ pipeline {
             }
         }
 
-        stage('Test') {
+        stage('Start buildModule') {
             steps {
-                echo 'Testing....'
+                script {
+                    dir('biday-msa-jenkins/backend') {
+                        sh './buildModule.sh'
+                    }
+                }
             }
         }
-
-        // stage('execute sh') {
-        //     steps {
-        //         sh "chmod 774 ./project.sh"
-        //         sh "./project.sh"
-        //     }
-        // }
     }
 
-    triggers {
-        // Polling 설정했을 경우 (예: 5분마다 체크)
-        // cron('H/5 * * * *')
-
-        // GitHub Webhook 트리거 설정했을 경우 (웹후크가 설정되어 있을 때)
-        githubPush()
+    post {
+        always {
+            echo 'I will always say Hello again!'
+        }
     }
 }
+
+
 
 
 
