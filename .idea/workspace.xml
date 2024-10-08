@@ -4,9 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="3fac3ffc-1383-4a43-8935-77bbcf185131" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/Jenkinsfile" beforeDir="false" afterPath="$PROJECT_DIR$/Jenkinsfile" afterDir="false" />
-    </list>
+    <list default="true" id="3fac3ffc-1383-4a43-8935-77bbcf185131" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -31,7 +29,7 @@
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "git-widget-placeholder": "master",
     "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "C:/Users/kimdo/Desktop/biday-msa-jenkins/backend",
+    "last_opened_file_path": "C:/Users/kimdo/Desktop/biday-msa-jenkins",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -42,6 +40,7 @@
 }]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\kimdo\Desktop\biday-msa-jenkins" />
       <recent name="C:\Users\kimdo\Desktop\biday-msa-jenkins\backend" />
     </key>
   </component>
@@ -61,7 +60,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1728367286775</updated>
-      <workItem from="1728367289498" duration="7284000" />
+      <workItem from="1728367289498" duration="7612000" />
     </task>
     <servers />
   </component>

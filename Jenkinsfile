@@ -1,13 +1,6 @@
 // https://velog.io/@revelation/Jenkins-pipeline-%EC%82%AC%EC%9A%A9%ED%95%B4%EB%B3%B4%EA%B8%B0
 pipeline {
     agent any
-//     agent {
-//         docker {
-//             image 'maven:3.8.1-adoptopenjdk-11'
-//             label 'my-defined-label'
-//             args '-v /tmp:/tmp'
-//         }
-//     }
 
     stages {
         stage('git pull') {
@@ -28,7 +21,8 @@ pipeline {
             steps {
                 script {
                     dir('biday-msa-jenkins/backend') {
-                        sh 'bash ./buildModule.sh'
+                        // bash 대신 cmd를 사용할 경우, 명령어 수정
+                        bat './buildModule.sh' // Windows에서 bat 사용
                     }
                 }
             }
@@ -41,6 +35,7 @@ pipeline {
         }
     }
 }
+
 
 
 
