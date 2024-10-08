@@ -35,29 +35,19 @@ pipeline {
                 script {
                     // 서버 이미지 빌드
                     dir('biday-msa-jenkins/backend/server') {
-                        def serverDirs = []
-                        bat 'for /r %i in (Dockerfile) do @echo %i' > 'serverDockerfiles.txt'
-                        serverDirs = readFile('serverDockerfiles.txt').split('\n')
-
+                        def serverDirs = new File("${env.WORKSPACE}/biday-msa-jenkins/backend/server").listFiles().findAll { it.name == 'Dockerfile' }
                         for (file in serverDirs) {
-                            if (file) {
-                                def imageName = file.replace('\\', '/').split('/').last()  // 서브디렉토리 이름 추출
-                                docker.build("${repository}/server/${imageName}:${BUILD_NUMBER}", "-f ${file} ${file.parent}")
-                            }
+                            def imageName = file.parent.replace('\\', '/').split('/').last()  // 서브디렉토리 이름 추출
+                            docker.build("${repository}/server/${imageName}:${BUILD_NUMBER}", "-f ${file} ${file.parent}")
                         }
                     }
 
                     // 서비스 이미지 빌드
                     dir('biday-msa-jenkins/backend/service') {
-                        def serviceDirs = []
-                        bat 'for /r %i in (Dockerfile) do @echo %i' > 'serviceDockerfiles.txt'
-                        serviceDirs = readFile('serviceDockerfiles.txt').split('\n')
-
+                        def serviceDirs = new File("${env.WORKSPACE}/biday-msa-jenkins/backend/service").listFiles().findAll { it.name == 'Dockerfile' }
                         for (file in serviceDirs) {
-                            if (file) {
-                                def imageName = file.replace('\\', '/').split('/').last()  // 서브디렉토리 이름 추출
-                                docker.build("${repository}/service/${imageName}:${BUILD_NUMBER}", "-f ${file} ${file.parent}")
-                            }
+                            def imageName = file.parent.replace('\\', '/').split('/').last()  // 서브디렉토리 이름 추출
+                            docker.build("${repository}/service/${imageName}:${BUILD_NUMBER}", "-f ${file} ${file.parent}")
                         }
                     }
                 }
@@ -75,41 +65,24 @@ pipeline {
                 script {
                     // 서버 이미지 푸시
                     dir('biday-msa-jenkins/backend/server') {
-                        def serverDirs = []
-                        bat 'for /r %i in (Dockerfile) do @echo %i' > 'serverDockerfiles.txt'
-                        serverDirs = readFile('serverDockerfiles.txt').split('\n')
-
+                        def serverDirs = new File("${env.WORKSPACE}/biday-msa-jenkins/backend/server").listFiles().findAll { it.name == 'Dockerfile' }
                         for (file in serverDirs) {
-                            if (file) {
-                                def imageName = file.replace('\\', '/').split('/').last()
-                                bat "docker push ${repository}/server/${imageName}:${BUILD_NUMBER}"
-                            }
+                            def imageName = file.parent.replace('\\', '/').split('/').last()
+                            bat "docker push ${repository}/server/${imageName}:${BUILD_NUMBER}"
                         }
                     }
 
                     // 서비스 이미지 푸시
                     dir('biday-msa-jenkins/backend/service') {
-                        def serviceDirs = []
-                        bat 'for /r %i in (Dockerfile) do @echo %i' > 'serviceDockerfiles.txt'
-                        serviceDirs = readFile('serviceDockerfiles.txt').split('\n')
-
+                        def serviceDirs = new File("${env.WORKSPACE}/biday-msa-jenkins/backend/service").listFiles().findAll { it.name == 'Dockerfile' }
                         for (file in serviceDirs) {
-                            if (file) {
-                                def imageName = file.replace('\\', '/').split('/').last()
-                                bat "docker push ${repository}/service/${imageName}:${BUILD_NUMBER}"
-                            }
+                            def imageName = file.parent.replace('\\', '/').split('/').last()
+                            bat "docker push ${repository}/service/${imageName}:${BUILD_NUMBER}"
                         }
                     }
                 }
             }
         }
-
-        // stage('Cleaning up') {
-        //     steps {
-        //         bat "docker rmi ${repository}/server:${BUILD_NUMBER}"
-        //         bat "docker rmi ${repository}/service:${BUILD_NUMBER}"
-        //     }
-        // }
     }
 
     post {
