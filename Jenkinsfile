@@ -21,8 +21,10 @@ pipeline {
             steps {
                 script {
                     dir('biday-msa-jenkins/backend') {
-                        // bash 대신 cmd를 사용할 경우, 명령어 수정
-                        bat './buildModule.sh' // Windows에서 bat 사용
+                        // 스크립트에 실행 권한 부여
+                        sh 'chmod +x buildModule.sh'
+                        // Git Bash에서 스크립트 실행
+                        sh 'bash ./buildModule.sh'
                     }
                 }
             }
@@ -35,6 +37,7 @@ pipeline {
         }
     }
 }
+
 
 
 
