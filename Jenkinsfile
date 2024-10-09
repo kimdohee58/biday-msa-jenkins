@@ -75,11 +75,11 @@ pipeline {
                             def dirs = output.readLines()
                             for (dir in dirs) {
                                 def imageName = dir // This is the last part of the path
-                                def tagCommand = "docker tag docker-jenkins/${imageName}:${BUILD_NUMBER} ${repository}:${imageName}"
-                                echo "Executing tag command: ${tagCommand}" // Print the tag command
-                                powershell tagCommand
+//                                 def tagCommand = "docker tag docker-jenkins/${imageName}:${BUILD_NUMBER} ${repository}:${imageName}"
+//                                 echo "Executing tag command: ${tagCommand}" // Print the tag command
+//                                 powershell tagCommand
 
-                                def pushCommand = "docker push ${repository}:${imageName}"
+                                def pushCommand = "docker push biday-jenkins/${imageName}:${BUILD_NUMBER}"
                                 echo "Executing push command: ${pushCommand}" // Print the push command
                                 powershell pushCommand
                                 echo "Pushed image: ${repository}:${imageName}"
