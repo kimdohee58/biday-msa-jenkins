@@ -50,7 +50,7 @@ pipeline {
                                 if (fileExists(dockerfilePath)) {
                                     // Extracting just the directory name for the tag
                                     def imageName = dir // This is the last part of the path
-                                    powershell "docker build -t biday-jenkins/${imageName}:${BUILD_NUMBER} -f ${dockerfilePath} ."
+                                    powershell "docker build -t biday-jenkins/${imageName}:${BUILD_NUMBER} ."
                                     echo "Built image: ${repository}/${imageName}:${BUILD_NUMBER}"
 //                                     powershell "docker build -t ${repository}/${dir}:${BUILD_NUMBER} ."
 // //                                     docker.build("${repository}/${imageType}/${dir}:${BUILD_NUMBER}", "-f ${dir}/Dockerfile ${dir}")
