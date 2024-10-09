@@ -12,10 +12,8 @@ pipeline {
                     dir('biday-msa-jenkins') {
                         if (!fileExists('.git')) {
                             powershell 'git clone https://github.com/kimdohee58/biday-msa-jenkins.git .'
-//                             bat 'git clone https://github.com/kimdohee58/biday-msa-jenkins.git .'
                         } else {
                             powershell 'git pull origin main'
-//                             bat 'git pull origin main'
                         }
                     }
                 }
@@ -26,11 +24,6 @@ pipeline {
             steps {
                 script {
                     dir('biday-msa-jenkins/backend') {
-                        // bat '"C:\\Program Files\\Git\\bin\\bash.exe" ./buildModule.sh'
-                        // PowerShell에서 .sh 파일을 실행
-//                         powershell '''
-//                         ./buildModule.sh
-//                         '''
                         powershell './buildModule.sh'
                     }
                 }
@@ -40,10 +33,7 @@ pipeline {
         stage('Login to Docker Hub') {
             steps {
                 withCredentials([usernamePassword(credentialsId: registryCredential, usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD')]) {
-                    powershell '''
-                                docker login -u $env:DOCKERHUB_USERNAME -p $env:DOCKERHUB_PASSWORD
-                                '''
-//                     bat "echo docker login -u %DOCKERHUB_USERNAME% -p %DOCKERHUB_PASSWORD%"
+                    powershell 'docker login -u $env:DOCKERHUB_USERNAME -p $env:DOCKERHUB_PASSWORD'
                 }
             }
         }
@@ -84,7 +74,6 @@ pipeline {
 //                                     def imageName = dir.trim()
 //                                     bat "docker push ${repository}/${imageType}/${imageName}:${BUILD_NUMBER}"
                                     powershell "docker push ${repository}/${imageType}/${dir}:${BUILD_NUMBER}"
-//                                     bat "docker push ${repository}/${imageType}/${dir}:${BUILD_NUMBER}"
                                 }
                             }
                         }
