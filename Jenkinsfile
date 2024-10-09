@@ -50,7 +50,7 @@ pipeline {
                                 if (fileExists(dockerfilePath)) {
                                     // Extracting just the directory name for the tag
                                     def imageName = dir // This is the last part of the path
-                                    powershell "docker build -t ${repository}/${imageName}:${BUILD_NUMBER} -f ${dockerfilePath} ."
+                                    powershell "docker build -t biday-jenkins/${imageName}:${BUILD_NUMBER} -f ${dockerfilePath} ."
                                     echo "Built image: ${repository}/${imageName}:${BUILD_NUMBER}"
 //                                     powershell "docker build -t ${repository}/${dir}:${BUILD_NUMBER} ."
 // //                                     docker.build("${repository}/${imageType}/${dir}:${BUILD_NUMBER}", "-f ${dir}/Dockerfile ${dir}")
@@ -76,7 +76,8 @@ pipeline {
                             for (dir in dirs) {
                                 // Define the image name and tag here
                                 def imageName = "${repository}/${dir}:${BUILD_NUMBER}"
-                                def pushCommand = "docker push ${imageName}"
+                                powershell "docker tag docker-jenkins/${dir} ${repository}:${dir}"
+                                def pushCommand = "docker push -a ${repository}:${dir}"
                                 echo "Executing push command: ${pushCommand}" // Print the push command
                                 powershell pushCommand
                                 echo "Pushed image: ${imageName}"
