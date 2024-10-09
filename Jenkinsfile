@@ -24,12 +24,16 @@ pipeline {
             steps {
                 script {
                     dir('biday-msa-jenkins/backend') {
-                        bat '"C:\\Program Files\\Git\\bin\\bash.exe" ./buildModule.sh'
+                        // bat '"C:\\Program Files\\Git\\bin\\bash.exe" ./buildModule.sh'
+                        // PowerShell에서 .sh 파일을 실행
+                        powershell '''
+                        ./buildModule.sh
+                        '''
                     }
                 }
             }
         }
-
+        
         stage('Login to Docker Hub') {
             steps {
                 withCredentials([usernamePassword(credentialsId: registryCredential, usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD')]) {
