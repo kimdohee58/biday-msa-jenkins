@@ -29,14 +29,14 @@ pipeline {
 //                 }
 //             }
 //         }
-//
-//         stage('Login to Docker Hub') {
-//             steps {
-//                 withCredentials([usernamePassword(credentialsId: registryCredential, usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD')]) {
-//                     bat "echo docker login -u %DOCKERHUB_USERNAME% -p %DOCKERHUB_PASSWORD%"
-//                 }
-//             }
-//         }
+
+        stage('Login to Docker Hub') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: registryCredential, usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD')]) {
+                    bat "echo docker login -u %DOCKERHUB_USERNAME% -p %DOCKERHUB_PASSWORD%"
+                }
+            }
+        }
 
         stage('Building Docker Images') {
             steps {
@@ -71,8 +71,9 @@ pipeline {
                                 def dockerfilePath = "${dir}/Dockerfile"
                                 // Dockerfile이 존재하는지 확인
                                 if (fileExists(dockerfilePath)) {
-                                    def imageName = dir.trim()
-                                    bat "docker push ${repository}/${imageType}/${imageName}:${BUILD_NUMBER}"
+//                                     def imageName = dir.trim()
+//                                     bat "docker push ${repository}/${imageType}/${imageName}:${BUILD_NUMBER}"
+                                    bat "docker push ${repository}/${imageType}/${dir}:${BUILD_NUMBER}"
                                 }
                             }
                         }
