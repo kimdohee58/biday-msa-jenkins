@@ -52,6 +52,10 @@ pipeline {
                                     def imageName = dir // This is the last part of the path
                                     powershell "docker build -t biday-jenkins/${imageName}:${BUILD_NUMBER} ."
                                     echo "Built image: ${repository}/${imageName}:${BUILD_NUMBER}"
+
+                                    // List the images to confirm
+                                    def imagesOutput = powershell "docker images"
+                                    echo "Current Docker images:\n${imagesOutput}"
 //                                     powershell "docker build -t ${repository}/${dir}:${BUILD_NUMBER} ."
 // //                                     docker.build("${repository}/${imageType}/${dir}:${BUILD_NUMBER}", "-f ${dir}/Dockerfile ${dir}")
 //                                     echo "Built image: ${repository}/${imageType}/${dir}:${BUILD_NUMBER}"
@@ -75,14 +79,18 @@ pipeline {
                             def dirs = output.readLines()
                             for (dir in dirs) {
                                 def imageName = dir // This is the last part of the path
-//                                 def tagCommand = "docker tag docker-jenkins/${imageName}:${BUILD_NUMBER} ${repository}:${imageName}"
-//                                 echo "Executing tag command: ${tagCommand}" // Print the tag command
-//                                 powershell tagCommand
+                                def tagCommand = "docker tag docker-jenkins/${imageName}:${BUILD_NUMBER} ${repository}:${imageName}"
+                                echo "Executing tag command: ${tagCommand}" // Print the tag command
+                                powershell tagCommand
 
                                 def pushCommand = "docker push biday-jenkins/${imageName}:${BUILD_NUMBER}"
                                 echo "Executing push command: ${pushCommand}" // Print the push command
                                 powershell pushCommand
                                 echo "Pushed image: ${repository}:${imageName}"
+
+                                // List the images again after pushing
+                                def imagesOutput = powershell "docker images"
+                                echo "Current Docker images after push:\n${imagesOutput}"
                             }
                         }
                     }
