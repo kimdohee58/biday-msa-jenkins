@@ -74,9 +74,10 @@ pipeline {
                             def output = powershell(script: 'Get-ChildItem -Directory', returnStdout: true).trim()
                             def dirs = output.readLines()
                             for (dir in dirs) {
-                                // Push the built images to Docker Hub
-                                powershell "docker push ${repository}/${dir}:${BUILD_NUMBER}"
-                                echo "Pushed image: ${repository}/${dir}:${BUILD_NUMBER}"
+                                powershell "docker push ${repository}:/${dir}"
+                                echo "Pushed image: ${repository}:/${dir}"
+//                                 powershell "docker push ${repository}/${dir}:${BUILD_NUMBER}"
+//                                 echo "Pushed image: ${repository}/${dir}:${BUILD_NUMBER}"
                             }
                         }
                     }
