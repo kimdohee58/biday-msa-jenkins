@@ -13,7 +13,7 @@ pipeline {
                         if (!fileExists('.git')) {
                             bat 'git clone https://github.com/kimdohee58/biday-msa-jenkins.git .'
                         } else {
-                            bat 'git pull origin master'
+                            bat 'git pull origin main'
                         }
                     }
                 }
