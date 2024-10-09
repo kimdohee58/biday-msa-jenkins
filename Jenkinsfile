@@ -41,21 +41,18 @@ pipeline {
         stage('Building Docker Images') {
             steps {
                 script {
-                    // Closure to build images
                     def buildImages = { dirPath, imageType ->
                         dir(dirPath) {
-                            def dirs = new File(dirPath).listDirectories()
+                            def output = bat(script: 'dir /b', returnStdout: true)
+                            def dirs = output.readLines()
                             for (dir in dirs) {
-                                def dockerfile = new File(dir, 'Dockerfile')
-                                if (dockerfile.exists()) {
-                                    def imageName = dir.name // Subdirectory name
-                                    docker.build("${repository}/${imageType}/${imageName}:${BUILD_NUMBER}", "-f ${dockerfile.path} ${dir}")
+                                if (fileExists("${dir}/Dockerfile")) {
+                                    docker.build("${repository}/${imageType}/${dir}:${BUILD_NUMBER}", "-f ${dir}/Dockerfile ${dir}")
                                 }
                             }
                         }
                     }
 
-                    // Build server and service images
                     buildImages("${env.WORKSPACE}/biday-msa-jenkins/backend/server", "server")
                     buildImages("${env.WORKSPACE}/biday-msa-jenkins/backend/service", "service")
                 }
