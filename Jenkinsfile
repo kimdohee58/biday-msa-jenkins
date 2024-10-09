@@ -46,10 +46,15 @@ pipeline {
                             def output = powershell(script: 'Get-ChildItem -Directory', returnStdout: true)
                             def dirs = output.readLines()
                             for (dir in dirs) {
-                                if (fileExists("${dir}/Dockerfile")) {
-                                    powershell "docker build -t ${repository}/${dir}:${BUILD_NUMBER} ."
-//                                     docker.build("${repository}/${imageType}/${dir}:${BUILD_NUMBER}", "-f ${dir}/Dockerfile ${dir}")
-                                    echo "Built image: ${repository}/${imageType}/${dir}:${BUILD_NUMBER}"
+                                def dockerfilePath = "${dir}/Dockerfile"
+                                if (fileExists(dockerfilePath)) {
+                                    // Extracting just the directory name for the tag
+                                    def imageName = dir // This is the last part of the path
+                                    powershell "docker build -t ${repository}/${imageName}:${BUILD_NUMBER} -f ${dockerfilePath} ."
+                                    echo "Built image: ${repository}/${imageName}:${BUILD_NUMBER}"
+//                                     powershell "docker build -t ${repository}/${dir}:${BUILD_NUMBER} ."
+// //                                     docker.build("${repository}/${imageType}/${dir}:${BUILD_NUMBER}", "-f ${dir}/Dockerfile ${dir}")
+//                                     echo "Built image: ${repository}/${imageType}/${dir}:${BUILD_NUMBER}"
                                 }
                             }
                         }
@@ -69,22 +74,44 @@ pipeline {
                             def output = powershell(script: 'Get-ChildItem -Directory', returnStdout: true).trim()
                             def dirs = output.readLines()
                             for (dir in dirs) {
-                                def dockerfilePath = "${dir}/Dockerfile"
-                                if (fileExists(dockerfilePath)) {
-                                    powershell "docker tag ${repository}/${dir}:${BUILD_NUMBER} kimdohee58/${repository}:${dir}"
-                                    powershell "docker push ${repository}/${dir}:${BUILD_NUMBER}"
-//                                     powershell "docker push ${repository}/${imageType}/${dir}:${BUILD_NUMBER}"
-                                    echo "docker push ${repository}/${imageType}/${dir}:${BUILD_NUMBER}"
-                                }
+                                // Push the built images to Docker Hub
+                                powershell "docker push ${repository}/${dir}:${BUILD_NUMBER}"
+                                echo "Pushed image: ${repository}/${dir}:${BUILD_NUMBER}"
                             }
                         }
                     }
 
+                    // Push images from the specified directories
                     pushImages("${env.WORKSPACE}/biday-msa-jenkins/backend/server", "server")
                     pushImages("${env.WORKSPACE}/biday-msa-jenkins/backend/service", "service")
                 }
             }
         }
+
+//         stage('Push Docker Images') {
+//             steps {
+//                 script {
+//                     def pushImages = { dirPath, imageType ->
+//                         dir(dirPath) {
+//                             def output = powershell(script: 'Get-ChildItem -Directory', returnStdout: true).trim()
+//                             def dirs = output.readLines()
+//                             for (dir in dirs) {
+//                                 def dockerfilePath = "${dir}/Dockerfile"
+//                                 if (fileExists(dockerfilePath)) {
+//                                     powershell "docker tag ${repository}/${dir}:${BUILD_NUMBER} kimdohee58/${repository}:${dir}"
+//                                     powershell "docker push ${repository}/${dir}:${BUILD_NUMBER}"
+// //                                     powershell "docker push ${repository}/${imageType}/${dir}:${BUILD_NUMBER}"
+//                                     echo "docker push ${repository}/${imageType}/${dir}:${BUILD_NUMBER}"
+//                                 }
+//                             }
+//                         }
+//                     }
+//
+//                     pushImages("${env.WORKSPACE}/biday-msa-jenkins/backend/server", "server")
+//                     pushImages("${env.WORKSPACE}/biday-msa-jenkins/backend/service", "service")
+//                 }
+//             }
+//         }
     }
 
     post {
