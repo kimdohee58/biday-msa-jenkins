@@ -59,32 +59,32 @@ pipeline {
             }
         }
 
-//         stage('Deploy Images') {
-//             steps {
-//                 script {
-//                     // Closure to push images
-//                     def pushImages = { dirPath, imageType ->
-//                         dir(dirPath) {
-//                             // Windows 명령어를 사용하여 디렉토리 목록 가져오기
-//                             def dirs = bat(script: 'for /d %i in (*) do @echo %i', returnStdout: true).trim().split('\n')
-//                             for (dir in dirs) {
-//                                 def dockerfilePath = "${dir}/Dockerfile"
-//                                 // Dockerfile이 존재하는지 확인
-//                                 if (fileExists(dockerfilePath)) {
-// //                                     def imageName = dir.trim()
-// //                                     bat "docker push ${repository}/${imageType}/${imageName}:${BUILD_NUMBER}"
-//                                     bat "docker push ${repository}/${imageType}/${dir}:${BUILD_NUMBER}"
-//                                 }
-//                             }
-//                         }
-//                     }
-//
-//                     // Push server and service images
-//                     pushImages("${env.WORKSPACE}/biday-msa-jenkins/backend/server", "server")
-//                     pushImages("${env.WORKSPACE}/biday-msa-jenkins/backend/service", "service")
-//                 }
-//             }
-//         }
+        stage('Push Docker Images') {
+            steps {
+                script {
+                    // Closure to push images
+                    def pushImages = { dirPath, imageType ->
+                        dir(dirPath) {
+                            // Windows 명령어를 사용하여 디렉토리 목록 가져오기
+                            def dirs = bat(script: 'for /d %i in (*) do @echo %i', returnStdout: true).trim().split('\n')
+                            for (dir in dirs) {
+                                def dockerfilePath = "${dir}/Dockerfile"
+                                // Dockerfile이 존재하는지 확인
+                                if (fileExists(dockerfilePath)) {
+//                                     def imageName = dir.trim()
+//                                     bat "docker push ${repository}/${imageType}/${imageName}:${BUILD_NUMBER}"
+                                    bat "docker push ${repository}/${imageType}/${dir}:${BUILD_NUMBER}"
+                                }
+                            }
+                        }
+                    }
+
+                    // Push server and service images
+                    pushImages("${env.WORKSPACE}/biday-msa-jenkins/backend/server", "server")
+                    pushImages("${env.WORKSPACE}/biday-msa-jenkins/backend/service", "service")
+                }
+            }
+        }
     }
 
     post {
