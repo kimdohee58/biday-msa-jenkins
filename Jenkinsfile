@@ -74,15 +74,15 @@ pipeline {
                             def output = powershell(script: 'Get-ChildItem -Directory', returnStdout: true).trim()
                             def dirs = output.readLines()
                             for (dir in dirs) {
-                                def dockerfilePath = "${dir}/Dockerfile"
-                                if (fileExists(dockerfilePath)) {
-                                    // Extracting just the directory name for the tag
-                                    def imageName = dir // This is the last part of the path
-                                powershell "docker tag docker-jenkins/${imageName} ${repository}:${imageName}"
-                                def pushCommand = "docker push -a ${repository}:${imageName}"
+                                def imageName = dir // This is the last part of the path
+                                def tagCommand = "docker tag docker-jenkins/${imageName}:${BUILD_NUMBER} ${repository}:${imageName}"
+                                echo "Executing tag command: ${tagCommand}" // Print the tag command
+                                powershell tagCommand
+
+                                def pushCommand = "docker push ${repository}:${imageName}"
                                 echo "Executing push command: ${pushCommand}" // Print the push command
                                 powershell pushCommand
-                                echo "Pushed image: ${imageName}"
+                                echo "Pushed image: ${repository}:${imageName}"
                             }
                         }
                     }
@@ -92,7 +92,6 @@ pipeline {
                 }
             }
         }
-
 
 //         stage('Push Docker Images') {
 //             steps {
