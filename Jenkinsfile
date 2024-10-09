@@ -41,7 +41,7 @@ pipeline {
             steps {
                 withCredentials([usernamePassword(credentialsId: registryCredential, usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD')]) {
                     powershell '''
-                                echo %DOCKERHUB_PASSWORD% | docker login -u %DOCKERHUB_USERNAME% --password-stdin
+                                docker login -u $env:DOCKERHUB_USERNAME -p $env:DOCKERHUB_PASSWORD
                                 '''
 //                     bat "echo docker login -u %DOCKERHUB_USERNAME% -p %DOCKERHUB_PASSWORD%"
                 }
