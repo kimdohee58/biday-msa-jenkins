@@ -74,20 +74,45 @@ pipeline {
                             def output = powershell(script: 'Get-ChildItem -Directory', returnStdout: true).trim()
                             def dirs = output.readLines()
                             for (dir in dirs) {
-                                powershell "docker push ${repository}:/${dir}"
-                                echo "Pushed image: ${repository}:/${dir}"
-//                                 powershell "docker push ${repository}/${dir}:${BUILD_NUMBER}"
-//                                 echo "Pushed image: ${repository}/${dir}:${BUILD_NUMBER}"
+                                // Define the image name and tag here
+                                def imageName = "${repository}/${dir}:${BUILD_NUMBER}"
+                                def pushCommand = "docker push ${imageName}"
+                                echo "Executing push command: ${pushCommand}" // Print the push command
+                                powershell pushCommand
+                                echo "Pushed image: ${imageName}"
                             }
                         }
                     }
 
-                    // Push images from the specified directories
                     pushImages("${env.WORKSPACE}/biday-msa-jenkins/backend/server", "server")
                     pushImages("${env.WORKSPACE}/biday-msa-jenkins/backend/service", "service")
                 }
             }
         }
+
+
+//         stage('Push Docker Images') {
+//             steps {
+//                 script {
+//                     def pushImages = { dirPath, imageType ->
+//                         dir(dirPath) {
+//                             def output = powershell(script: 'Get-ChildItem -Directory', returnStdout: true).trim()
+//                             def dirs = output.readLines()
+//                             for (dir in dirs) {
+//                                 powershell "docker push ${repository}:/${dir}"
+//                                 echo "Pushed image: ${repository}:/${dir}"
+// //                                 powershell "docker push ${repository}/${dir}:${BUILD_NUMBER}"
+// //                                 echo "Pushed image: ${repository}/${dir}:${BUILD_NUMBER}"
+//                             }
+//                         }
+//                     }
+//
+//                     // Push images from the specified directories
+//                     pushImages("${env.WORKSPACE}/biday-msa-jenkins/backend/server", "server")
+//                     pushImages("${env.WORKSPACE}/biday-msa-jenkins/backend/service", "service")
+//                 }
+//             }
+//         }
 
 //         stage('Push Docker Images') {
 //             steps {
