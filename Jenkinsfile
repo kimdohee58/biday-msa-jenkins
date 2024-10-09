@@ -1,7 +1,7 @@
 pipeline {
     environment {
-        repository = "kimdohee58/biday-jenkins" // Docker Hub user id/repo name
-        registryCredential = 'dockerhub' // Jenkins credentialsId
+        repository = "kimdohee58/biday-jenkins"
+        registryCredential = 'dockerhub'
     }
     agent any
 
@@ -20,15 +20,15 @@ pipeline {
             }
         }
 
-//         stage('Start Build Module') {
-//             steps {
-//                 script {
-//                     dir('biday-msa-jenkins/backend') {
-//                         bat '"C:\\Program Files\\Git\\bin\\bash.exe" ./buildModule.sh'
-//                     }
-//                 }
-//             }
-//         }
+        stage('Start Build Module') {
+            steps {
+                script {
+                    dir('biday-msa-jenkins/backend') {
+                        bat '"C:\\Program Files\\Git\\bin\\bash.exe" ./buildModule.sh'
+                    }
+                }
+            }
+        }
 
         stage('Login to Docker Hub') {
             steps {
@@ -59,32 +59,32 @@ pipeline {
             }
         }
 
-        stage('Deploy Images') {
-            steps {
-                script {
-                    // Closure to push images
-                    def pushImages = { dirPath, imageType ->
-                        dir(dirPath) {
-                            // Windows 명령어를 사용하여 디렉토리 목록 가져오기
-                            def dirs = bat(script: 'for /d %i in (*) do @echo %i', returnStdout: true).trim().split('\n')
-                            for (dir in dirs) {
-                                def dockerfilePath = "${dir}/Dockerfile"
-                                // Dockerfile이 존재하는지 확인
-                                if (fileExists(dockerfilePath)) {
-//                                     def imageName = dir.trim()
-//                                     bat "docker push ${repository}/${imageType}/${imageName}:${BUILD_NUMBER}"
-                                    bat "docker push ${repository}/${imageType}/${dir}:${BUILD_NUMBER}"
-                                }
-                            }
-                        }
-                    }
-
-                    // Push server and service images
-                    pushImages("${env.WORKSPACE}/biday-msa-jenkins/backend/server", "server")
-                    pushImages("${env.WORKSPACE}/biday-msa-jenkins/backend/service", "service")
-                }
-            }
-        }
+//         stage('Deploy Images') {
+//             steps {
+//                 script {
+//                     // Closure to push images
+//                     def pushImages = { dirPath, imageType ->
+//                         dir(dirPath) {
+//                             // Windows 명령어를 사용하여 디렉토리 목록 가져오기
+//                             def dirs = bat(script: 'for /d %i in (*) do @echo %i', returnStdout: true).trim().split('\n')
+//                             for (dir in dirs) {
+//                                 def dockerfilePath = "${dir}/Dockerfile"
+//                                 // Dockerfile이 존재하는지 확인
+//                                 if (fileExists(dockerfilePath)) {
+// //                                     def imageName = dir.trim()
+// //                                     bat "docker push ${repository}/${imageType}/${imageName}:${BUILD_NUMBER}"
+//                                     bat "docker push ${repository}/${imageType}/${dir}:${BUILD_NUMBER}"
+//                                 }
+//                             }
+//                         }
+//                     }
+//
+//                     // Push server and service images
+//                     pushImages("${env.WORKSPACE}/biday-msa-jenkins/backend/server", "server")
+//                     pushImages("${env.WORKSPACE}/biday-msa-jenkins/backend/service", "service")
+//                 }
+//             }
+//         }
     }
 
     post {
