@@ -43,7 +43,7 @@ pipeline {
                 script {
                     def buildImages = { dirPath, imageType ->
                         dir(dirPath) {
-                            def output = bat(script: 'dir /b', returnStdout: true)
+                            def output = powershell(script: 'Get-ChildItem -Directory', returnStdout: true)
                             def dirs = output.readLines()
                             for (dir in dirs) {
                                 if (fileExists("${dir}/Dockerfile")) {
