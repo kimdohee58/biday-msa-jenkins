@@ -34,7 +34,6 @@ pipeline {
             steps {
                 withCredentials([usernamePassword(credentialsId: registryCredential, usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD')]) {
                     powershell 'docker login -u $env:DOCKERHUB_USERNAME -p $env:DOCKERHUB_PASSWORD'
-//                     echo $DOCKERHUB_PASSWORD | docker login -u $DOCKERHUB_USERNAME --password-stdin
                 }
             }
         }
@@ -72,6 +71,7 @@ pipeline {
                             for (dir in dirs) {
                                 def dockerfilePath = "${dir}/Dockerfile"
                                 if (fileExists(dockerfilePath)) {
+                                    powershell "docker tag ${repository}/${dir}:${BUILD_NUMBER} kimdohee58/${repository}:${dir}"
                                     powershell "docker push ${repository}/${dir}:${BUILD_NUMBER}"
 //                                     powershell "docker push ${repository}/${imageType}/${dir}:${BUILD_NUMBER}"
                                     echo "docker push ${repository}/${imageType}/${dir}:${BUILD_NUMBER}"
