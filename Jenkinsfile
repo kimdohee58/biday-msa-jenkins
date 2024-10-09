@@ -1,13 +1,12 @@
 pipeline {
     environment {
-        repository = "kimdohee58/biday-jenkins" // 도커 허브의 사용자 id/repo 이름
-        registryCredential = 'dockerhub' // Jenkins에서 만든 credentialsId
-        dockerImage = ''
+        repository = "kimdohee58/biday-jenkins" // Docker Hub user id/repo name
+        registryCredential = 'dockerhub' // Jenkins credentialsId
     }
     agent any
 
     stages {
-        stage('git pull') {
+        stage('Git Pull') {
             steps {
                 script {
                     dir('biday-msa-jenkins') {
@@ -21,68 +20,68 @@ pipeline {
             }
         }
 
-//         stage('Start buildModule') {
-//             steps {
-//                 script {
-//                     dir('biday-msa-jenkins/backend') {
-//                         bat '"C:\\Program Files\\Git\\bin\\bash.exe" ./buildModule.sh'
-//                     }
-//                 }
-//             }
-//         }
+        stage('Start Build Module') {
+            steps {
+                script {
+                    dir('biday-msa-jenkins/backend') {
+                        bat '"C:\\Program Files\\Git\\bin\\bash.exe" ./buildModule.sh'
+                    }
+                }
+            }
+        }
 
-        stage('Login') {
+        stage('Login to Docker Hub') {
             steps {
                 withCredentials([usernamePassword(credentialsId: registryCredential, usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD')]) {
-                    bat "echo docker login -u %DOCKERHUB_USERNAME% %DOCKERHUB_PASSWORD%"
+                    bat "echo docker login -u %DOCKERHUB_USERNAME% -p %DOCKERHUB_PASSWORD%"
                 }
             }
         }
 
-        stage('Building Docker images') {
+        stage('Building Docker Images') {
             steps {
                 script {
-                    // 서버 이미지 빌드
-                    dir('biday-msa-jenkins/backend/server') {
-                        def serverDirs = findFiles(glob: '**/Dockerfile')
-                        for (file in serverDirs) {
-                            def imageName = file.parent.replace('\\', '/').split('/').last()  // 서브디렉토리 이름 추출
-                            docker.build("${repository}/server/${imageName}:${BUILD_NUMBER}", "-f ${file.path} ${file.parent}")
+                    // Function to build images from a specified directory
+                    def buildImages(dirPath, imageType) {
+                        dir(dirPath) {
+                            def dirs = new File(dirPath).listDirectories()
+                            for (dir in dirs) {
+                                def dockerfile = new File(dir, 'Dockerfile')
+                                if (dockerfile.exists()) {
+                                    def imageName = dir.name // Subdirectory name
+                                    docker.build("${repository}/${imageType}/${imageName}:${BUILD_NUMBER}", "-f ${dockerfile.path} ${dir}")
+                                }
+                            }
                         }
                     }
 
-                    // 서비스 이미지 빌드
-                    dir('biday-msa-jenkins/backend/service') {
-                        def serviceDirs = findFiles(glob: '**/Dockerfile')
-                        for (file in serviceDirs) {
-                            def imageName = file.parent.replace('\\', '/').split('/').last()  // 서브디렉토리 이름 추출
-                            docker.build("${repository}/service/${imageName}:${BUILD_NUMBER}", "-f ${file.path} ${file.parent}")
-                        }
-                    }
+                    // Build server and service images
+                    buildImages("${env.WORKSPACE}/biday-msa-jenkins/backend/server", "server")
+                    buildImages("${env.WORKSPACE}/biday-msa-jenkins/backend/service", "service")
                 }
             }
         }
 
-        stage('Deploy our images') {
+        stage('Deploy Images') {
             steps {
                 script {
-                    // 서버 이미지 푸시
-                    dir('biday-msa-jenkins/backend/server') {
-                        def serverDirs = new File("${env.WORKSPACE}/biday-msa-jenkins/backend/server").listFiles().findAll { it.name == 'Dockerfile' }
-                        for (file in serverDirs) {
-                            def imageName = file.parentFile.name
-                            bat "docker push ${repository}/server/${imageName}:${BUILD_NUMBER}"
+                    // Function to push images to Docker Hub
+                    def pushImages(dirPath, imageType) {
+                        dir(dirPath) {
+                            def dirs = new File(dirPath).listDirectories()
+                            for (dir in dirs) {
+                                def dockerfile = new File(dir, 'Dockerfile')
+                                if (dockerfile.exists()) {
+                                    def imageName = dir.name
+                                    bat "docker push ${repository}/${imageType}/${imageName}:${BUILD_NUMBER}"
+                                }
+                            }
                         }
                     }
 
-                    // 서비스 이미지 푸시
-                    dir('biday-msa-jenkins/backend/service') {
-                        def serviceDirs = new File("${env.WORKSPACE}/biday-msa-jenkins/backend/service").listFiles().findAll { it.name == 'Dockerfile' }
-                        for (file in serviceDirs) {
-                            def imageName = file.parentFile.name
-                            bat "docker push ${repository}/service/${imageName}:${BUILD_NUMBER}"
-                        }
-                    }
+                    // Push server and service images
+                    pushImages("${env.WORKSPACE}/biday-msa-jenkins/backend/server", "server")
+                    pushImages("${env.WORKSPACE}/biday-msa-jenkins/backend/service", "service")
                 }
             }
         }
