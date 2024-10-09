@@ -48,7 +48,8 @@ pipeline {
                             def dirs = output.readLines()
                             for (dir in dirs) {
                                 if (fileExists("${dir}/Dockerfile")) {
-                                    docker.build("${repository}/${imageType}/${dir}:${BUILD_NUMBER}", "-f ${dir}/Dockerfile ${dir}")
+                                    powershell "docker build -t ${repository}/${dir}:${BUILD_NUMBER} ."
+//                                     docker.build("${repository}/${imageType}/${dir}:${BUILD_NUMBER}", "-f ${dir}/Dockerfile ${dir}")
                                     echo "Built image: ${repository}/${imageType}/${dir}:${BUILD_NUMBER}"
                                 }
                             }
@@ -71,7 +72,8 @@ pipeline {
                             for (dir in dirs) {
                                 def dockerfilePath = "${dir}/Dockerfile"
                                 if (fileExists(dockerfilePath)) {
-                                    powershell "docker push ${repository}/${imageType}/${dir}:${BUILD_NUMBER}"
+                                    powershell "docker push ${repository}/${dir}:${BUILD_NUMBER}"
+//                                     powershell "docker push ${repository}/${imageType}/${dir}:${BUILD_NUMBER}"
                                     echo "docker push ${repository}/${imageType}/${dir}:${BUILD_NUMBER}"
                                 }
                             }
