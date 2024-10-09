@@ -163,13 +163,9 @@ pipeline {
                             def output = bat(script: 'dir /b', returnStdout: true)
                             def dirs = output.readLines()
                             for (dir in dirs) {
-                                def dockerfilePath = "${dir}/Dockerfile"
-                                // Dockerfile이 존재하는지 확인
-                                if (fileExists(dockerfilePath)) {
 //                                     def imageName = dir.trim()
 //                                     bat "docker push ${repository}/${imageType}/${imageName}:${BUILD_NUMBER}"
-                                     bat "docker push ${repository}/${imageType}/${dir}:${BUILD_NUMBER}"
-                                }
+                                 bat "docker push ${repository}/${imageType}/${dir}:${BUILD_NUMBER}"
                             }
                         }
                     }
