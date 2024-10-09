@@ -20,29 +20,29 @@ pipeline {
             }
         }
 
-        stage('Start Build Module') {
-            steps {
-                script {
-                    dir('biday-msa-jenkins/backend') {
-                        bat '"C:\\Program Files\\Git\\bin\\bash.exe" ./buildModule.sh'
-                    }
-                }
-            }
-        }
-
-        stage('Login to Docker Hub') {
-            steps {
-                withCredentials([usernamePassword(credentialsId: registryCredential, usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD')]) {
-                    bat "echo docker login -u %DOCKERHUB_USERNAME% -p %DOCKERHUB_PASSWORD%"
-                }
-            }
-        }
+//         stage('Start Build Module') {
+//             steps {
+//                 script {
+//                     dir('biday-msa-jenkins/backend') {
+//                         bat '"C:\\Program Files\\Git\\bin\\bash.exe" ./buildModule.sh'
+//                     }
+//                 }
+//             }
+//         }
+//
+//         stage('Login to Docker Hub') {
+//             steps {
+//                 withCredentials([usernamePassword(credentialsId: registryCredential, usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD')]) {
+//                     bat "echo docker login -u %DOCKERHUB_USERNAME% -p %DOCKERHUB_PASSWORD%"
+//                 }
+//             }
+//         }
 
         stage('Building Docker Images') {
             steps {
                 script {
-                    // Function to build images from a specified directory
-                    def buildImages(dirPath, imageType) {
+                    // Closure to build images
+                    def buildImages = { dirPath, imageType ->
                         dir(dirPath) {
                             def dirs = new File(dirPath).listDirectories()
                             for (dir in dirs) {
@@ -65,8 +65,8 @@ pipeline {
         stage('Deploy Images') {
             steps {
                 script {
-                    // Function to push images to Docker Hub
-                    def pushImages(dirPath, imageType) {
+                    // Closure to push images
+                    def pushImages = { dirPath, imageType ->
                         dir(dirPath) {
                             def dirs = new File(dirPath).listDirectories()
                             for (dir in dirs) {
