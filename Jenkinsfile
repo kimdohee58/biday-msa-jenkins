@@ -116,15 +116,15 @@ pipeline {
             }
         }
 
-//         stage('Start Build Module') {
-//             steps {
-//                 script {
-//                     dir('biday-msa-jenkins/backend') {
-//                         bat '"C:\\Program Files\\Git\\bin\\bash.exe" ./buildModule.sh'
-//                     }
-//                 }
-//             }
-//         }
+        stage('Start Build Module') {
+            steps {
+                script {
+                    dir('biday-msa-jenkins/backend') {
+                        bat '"C:\\Program Files\\Git\\bin\\bash.exe" ./buildModule.sh'
+                    }
+                }
+            }
+        }
 
         stage('Login to Docker Hub') {
             steps {
