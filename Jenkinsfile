@@ -164,9 +164,11 @@ pipeline {
                             def output = bat(script: 'dir /b', returnStdout: true)
                             def dirs = output.readLines()
                             for (dir in dirs) {
-                                    def imageName = dir.trim()
-                                    bat "docker push ${repository}/${imageType}/${imageName}:${BUILD_NUMBER}"
-//                                  bat "docker push ${repository}/${imageType}/${dir}:${BUILD_NUMBER}"
+                            if (fileExists("${dir}/Dockerfile")) {
+//                                     def imageName = dir.trim()
+//                                     bat "docker push ${repository}/${imageType}/${imageName}:${BUILD_NUMBER}"
+                                 bat "docker push ${repository}/${imageType}/${dir}:${BUILD_NUMBER}"
+                                }
                             }
                         }
                     }
