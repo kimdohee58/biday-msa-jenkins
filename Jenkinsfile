@@ -167,7 +167,9 @@ pipeline {
                             if (fileExists("${dir}/Dockerfile")) {
 //                                     def imageName = dir.trim()
 //                                     bat "docker push ${repository}/${imageType}/${imageName}:${BUILD_NUMBER}"
-                                 bat "docker push ${repository}/${imageType}/${dir}:${BUILD_NUMBER}"
+                                    bat "docker tag ${repository}/${imageType}/${dir}:${BUILD_NUMBER} biday-jenkins:${BUILD_NUMBER}"
+                                    bat "docker push biday-jenkins:${BUILD_NUMBER}"
+//                                     bat "docker push ${repository}/${imageType}/${dir}:${BUILD_NUMBER}"
                                 }
                             }
                         }
