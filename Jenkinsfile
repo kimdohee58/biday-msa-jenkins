@@ -90,7 +90,7 @@ pipeline {
                             def dirs = output.readLines()
                             for (dir in dirs) {
                                 if (fileExists("${dir}/Dockerfile")) {
-                                    bat "docker rmi ${repository}:${dir}${BUILD_NUMBER}"
+                                    bat "docker rmi ${repository}/${imageType}/${dir}:${BUILD_NUMBER}"
                                 }
                             }
                         }
