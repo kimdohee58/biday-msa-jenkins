@@ -11,9 +11,9 @@ pipeline {
                 script {
                     dir('biday-msa-jenkins') {
                         if (!fileExists('.git')) {
-                             bat 'git clone https://github.com/kimdohee58/biday-msa-jenkins.git .'
+                            bat 'git clone https://github.com/kimdohee58/biday-msa-jenkins.git .'
                         } else {
-                             bat 'git pull origin main'
+                            bat 'git pull origin main'
                         }
                     }
                 }
@@ -33,7 +33,7 @@ pipeline {
         stage('Login to Docker Hub') {
             steps {
                 withCredentials([usernamePassword(credentialsId: registryCredential, usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD')]) {
-                     bat "echo docker login -u %DOCKERHUB_USERNAME% -p %DOCKERHUB_PASSWORD%"
+                    bat "echo docker login -u %DOCKERHUB_USERNAME% -p %DOCKERHUB_PASSWORD%"
                 }
             }
         }
@@ -67,7 +67,7 @@ pipeline {
                             def output = bat(script: 'dir /b', returnStdout: true)
                             def dirs = output.readLines()
                             for (dir in dirs) {
-                            if (fileExists("${dir}/Dockerfile")) {
+                                if (fileExists("${dir}/Dockerfile")) {
                                     bat "docker tag ${repository}/${imageType}/${dir}:${BUILD_NUMBER} ${repository}:${dir}${BUILD_NUMBER}"
                                     bat "docker push ${repository}:${dir}${BUILD_NUMBER}"
                                 }
@@ -81,8 +81,26 @@ pipeline {
             }
         }
 
-//         stage('Delete Docker Images') {
-//         }
+        stage('Delete Docker Images') {
+            steps {
+                script {
+                    def deleteImages = { dirPath, imageType ->
+                        dir(dirPath) {
+                            def output = bat(script: 'dir /b', returnStdout: true)
+                            def dirs = output.readLines()
+                            for (dir in dirs) {
+                                if (fileExists("${dir}/Dockerfile")) {
+                                    bat "docker rmi ${repository}:${dir}${BUILD_NUMBER}"
+                                }
+                            }
+                        }
+                    }
+
+                    deleteImages("${env.WORKSPACE}/biday-msa-jenkins/backend/server", "server")
+                    deleteImages("${env.WORKSPACE}/biday-msa-jenkins/backend/service", "service")
+                }
+            }
+        }
     }
 
     post {
