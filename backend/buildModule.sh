@@ -5,16 +5,16 @@ export JAVA_HOME="C:\\Program Files\\Java\\jdk-17"
 
 # 모듈 리스트
 all_modules=(
-#    "server:eureka-server"
+    "server:eureka-server"
     "server:config-server"
-#    "server:gateway-server"
+    "server:gateway-server"
     "service:admin-service"
-#    "service:auction-service"
-#    "service:ftp-service"
-#    "service:order-service"
-#    "service:product-service"
-#    "service:sms-service"
-#    "service:user-service"
+    "service:auction-service"
+    "service:ftp-service"
+    "service:order-service"
+    "service:product-service"
+    "service:sms-service"
+    "service:user-service"
 )
 
 # Gradle clean
