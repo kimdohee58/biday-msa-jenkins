@@ -68,8 +68,8 @@ pipeline {
                             def dirs = output.readLines()
                             for (dir in dirs) {
                             if (fileExists("${dir}/Dockerfile")) {
-                                    bat "docker tag ${repository}/${imageType}/${dir}:${BUILD_NUMBER} ${repository}:${dir}/${BUILD_NUMBER}"
-                                    bat "docker push ${repository}:${dir}/${BUILD_NUMBER}"
+                                    bat "docker tag ${repository}/${imageType}/${dir}:${BUILD_NUMBER} ${repository}:${dir}${BUILD_NUMBER}"
+                                    bat "docker push ${repository}:${dir}${BUILD_NUMBER}"
                                 }
                             }
                         }
