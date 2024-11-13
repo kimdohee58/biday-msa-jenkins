@@ -1,0 +1,141 @@
+pipeline {
+    agent any
+
+    environment {
+        DOCKER_HUB_URL = "${docker_hub_url}"
+        GITHUB_URL = "${github_url}"
+        DOCKER_HUB_CREDENTIAL = 'dockerhub'
+        GIT_SSH_CREDENTIALS = 'github_ssh'
+    }
+
+    tools {
+        jdk 'openjdk_17'
+        gradle 'gradle_8.10'
+    }
+
+    stages {
+        stage('Initialize') {
+            steps {
+                script {
+                    modulePaths = [
+                       "config-server": "/var/lib/jenkins/workspace/biday-msa/backend/server/config-server",
+                       "eureka-server": "/var/lib/jenkins/workspace/biday-msa/backend/server/eureka-server",
+                       "gateway-server": "/var/lib/jenkins/workspace/biday-msa/backend/server/gateway-server",
+                       "admin-service": "/var/lib/jenkins/workspace/biday-msa/backend/service/admin-service",
+                       "auction-service": "/var/lib/jenkins/workspace/biday-msa/backend/service/auction-service",
+                       "ftp-service": "/var/lib/jenkins/workspace/biday-msa/backend/service/ftp-service",
+                       "order-service": "/var/lib/jenkins/workspace/biday-msa/backend/service/order-service",
+                       "product-service": "/var/lib/jenkins/workspace/biday-msa/backend/service/product-service",
+                       "sms-service": "/var/lib/jenkins/workspace/biday-msa/backend/service/sms-service",
+                       "user-service": "/var/lib/jenkins/workspace/biday-msa/backend/service/user-service"
+                   ]
+                }
+            }
+        }
+
+        stage('Github ') {
+            steps {
+                script {
+                    echo "Deinitializing and updating submodule..."
+//                     sh 'git submodule deinit -f backend/server/secret-server'
+//                     sh 'git submodule update --init --recursive'
+                      sh 'git fetch origin'
+                      sh 'git pull --recurse-submodules origin dev'
+                }
+
+                checkout scmGit(
+                    branches: [[name: '*/dev']],
+                    extensions: [
+                        submodule(parentCredentials: true, recursiveSubmodules: true, reference: '', trackingSubmodules: true)
+                    ],
+                    userRemoteConfigs: [
+                        [credentialsId: GIT_SSH_CREDENTIALS, url: GITHUB_URL]
+                    ]
+                )
+            }
+        }
+
+        stage('Gradle Build') {
+            steps {
+                echo '=== build modules shell script start ==='
+                dir('backend') {
+                    script {
+                        sh 'chmod +x gradlew'
+
+                        def allModules = [
+                            "server:config-server",
+                            "server:eureka-server",
+                            "server:gateway-server",
+                            "service:admin-service",
+                            "service:auction-service",
+                            "service:ftp-service",
+                            "service:order-service",
+                            "service:product-service",
+                            "service:sms-service",
+                            "service:user-service"
+                        ]
+
+                        echo "Cleaning..."
+                        sh './gradlew clean'
+
+                        allModules.each { module ->
+                            echo "Building for ${module}"
+                            sh "./gradlew :${module}:bootJar"
+                        }
+
+//                     sh 'chmod +x buildModule.sh'
+//                     sh './buildModule.sh'
+                    }
+                }
+            }
+        }
+
+        stage('Docker Image Build') {
+            steps {
+                script {
+                    docker.withRegistry('https://index.docker.io/v1/', DOCKER_HUB_CREDENTIAL) {
+                        modulePaths.each { module, path ->
+                            echo "Building Docker image for ${module}"
+                            sh """
+                               docker build -t ${DOCKER_HUB_URL}/biday-${module}-personal:${BUILD_TAG} ${path}
+                            """
+                        }
+                    }
+                }
+            }
+        }
+
+        stage('Docker Image Push') {
+            steps {
+                script {
+                    docker.withRegistry('https://index.docker.io/v1/', DOCKER_HUB_CREDENTIAL) {
+                        modulePaths.each { module, path ->
+                            echo "Pushing Docker image for ${module}"
+                            sh """
+                               docker push ${DOCKER_HUB_URL}/biday-${module}-personal:${BUILD_TAG}
+                            """
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    post{
+        success{
+            echo "========pipeline executed successfully ========"
+            echo "Image 정리..."
+            script {
+                modulePaths.each { module, path ->
+                    echo "Clean Docker image for ${module}"
+                    sh """
+                       docker rmi ${DOCKER_HUB_URL}/biday-${module}-personal:${BUILD_TAG}
+                    """
+                }
+            }
+        }
+        failure{
+            echo "========pipeline execution failed========"
+        }
+    }
+}
